@@ -9,3 +9,5 @@ shap
 transformers
 torch
 wget
+redis
+gradio
