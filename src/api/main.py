@@ -48,8 +48,10 @@ def train_model(params: TrainParams):
         y_pred = detector.predict(X_test)
         from sklearn.metrics import classification_report
         report = classification_report(y_test, y_pred, output_dict=True)
+        print('train_model done!')
         set_train_status({"status": "done", "detail": report})
     except Exception as e:
+        print('train_model error!')
         set_train_status({"status": "error", "detail": str(e)})
 
 @app.get("/")

@@ -2,13 +2,13 @@ import gradio as gr
 import requests
 import time
 
-API_URL = "http://app:8000"
+API_URL = "http://api:8000"
 
 # 학습 시작 함수
 def start_training(n_estimators, max_depth, random_state):
     payload = {
         "n_estimators": n_estimators,
-        "max_depth": max_depth if max_depth != '' else None,
+        "max_depth": None if max_depth == 0 else max_depth,
         "random_state": random_state
     }
     resp = requests.post(f"{API_URL}/train", json=payload)
@@ -35,12 +35,19 @@ with gr.Blocks() as demo:
     # NSL-KDD 이상탐지 학습 대시보드
     하이퍼파라미터를 입력하고 학습을 시작하세요.\n상태는 실시간으로 갱신됩니다.
     """)
+    gr.Markdown("""
+    **n_estimators**: 사용할 결정트리(Decision Tree)의 개수입니다. 값이 클수록 예측이 안정적이지만 느려질 수 있습니다.
+    
+    **max_depth**: 각 트리의 최대 깊이입니다. 0이면 제한 없이 분기합니다. 값이 크면 과적합 위험이 있습니다.
+    
+    **random_state**: 랜덤성을 제어하는 시드 값입니다. 같은 값이면 결과가 항상 같습니다.
+    """)
     with gr.Row():
-        n_estimators = gr.Number(label="n_estimators", value=100)
-        max_depth = gr.Textbox(label="max_depth (빈칸=제한없음)", value="")
-        random_state = gr.Number(label="random_state", value=42)
+        n_estimators = gr.Slider(label="n_estimators", minimum=10, maximum=500, value=100, step=10)
+        max_depth = gr.Slider(label="max_depth (0=제한없음)", minimum=0, maximum=50, value=0, step=1)
+        random_state = gr.Slider(label="random_state", minimum=0, maximum=10000, value=42, step=1)
     start_btn = gr.Button("학습 시작")
-    status_box = gr.Textbox(label="학습 상태", lines=8)
+    status_box = gr.Textbox(label="학습 상태", lines=8, value=get_status, every=2)
 
     def train_and_poll(n_estimators, max_depth, random_state):
         msg = start_training(n_estimators, max_depth, random_state)
@@ -61,4 +68,4 @@ with gr.Blocks() as demo:
     refresh_btn = gr.Button("상태 새로고침")
     refresh_btn.click(get_status, inputs=[], outputs=status_box)
 
-demo.launch()
+demo.launch(server_name="0.0.0.0", server_port=7860, show_error=True)

@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  app:
+  api:
     build: .
-    image: detector-app:latest
-    container_name: detector-app
+    image: detector-api:latest
+    container_name: detector-api
     ports:
       - "18000:8000"
     volumes:
@@ -17,7 +17,7 @@ services:
     image: redis:7
     container_name: detector-redis
     ports:
-      - "6379:6379" 
+      - "16379:6379" 
   gradio:
     build:
       context: .
@@ -25,9 +25,10 @@ services:
     image: detector-gradio:latest
     container_name: detector-gradio
     ports:
-      - "7860:7860"
+      - "17860:7860"
     volumes:
       - ./src:/app/src
+    command: python src/webui.py
     depends_on:
-      - app
+      - api
       - redis 
