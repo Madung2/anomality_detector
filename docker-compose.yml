@@ -3,6 +3,8 @@ version: '3.8'
 services:
   app:
     build: .
+    image: detector-app:latest
+    container_name: detector-app
     ports:
       - "18000:8000"
     volumes:
@@ -13,12 +15,15 @@ services:
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload 
   redis:
     image: redis:7
+    container_name: detector-redis
     ports:
       - "6379:6379" 
   gradio:
     build:
       context: .
       dockerfile: Dockerfile.gradio
+    image: detector-gradio:latest
+    container_name: detector-gradio
     ports:
       - "7860:7860"
     volumes:
